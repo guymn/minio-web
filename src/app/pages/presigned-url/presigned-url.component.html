@@ -1,0 +1,13 @@
+<h2>Download File from MinIO</h2>
+
+<form (submit)="onClickPresignedDownload($event)">
+  <input
+    type="text"
+    [(ngModel)]="fileName"
+    name="fileName"
+    placeholder="Enter file name"
+  />
+  <button type="submit">Download</button>
+</form>
+
+<img [src]="presignedUrl" style="width: 800px;">

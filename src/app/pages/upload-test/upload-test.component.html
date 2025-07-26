@@ -1,0 +1,28 @@
+<!-- upload-test.component.html -->
+<h2>Upload File to MinIO</h2>
+
+<div *ngFor="let item of currentUpload; let i = index">
+  <form (submit)="onUpload($event, i)">
+    <input type="file" (change)="onFileSelected($event, i)" />
+    <button
+      type="submit"
+      [disabled]="
+        !currentUpload[i].selectedFile || currentUpload[i].progress == 100
+      "
+    >
+      Upload
+    </button>
+    <button
+      type="button"
+      [disabled]="
+        !currentUpload[i].selectedFile || currentUpload[i].progress == 100
+      "
+      (click)="abortUpload(i)"
+    >
+      Abort
+    </button>
+    <button>{{ currentUpload[i].progress | number : "1.2-2" }}%</button>
+  </form>
+</div>
+
+<button type="button" (click)="addUploader()">Add Uploader</button>
