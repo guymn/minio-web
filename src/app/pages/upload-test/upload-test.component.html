@@ -15,13 +15,15 @@
     <button
       type="button"
       [disabled]="
-        !currentUpload[i].selectedFile || currentUpload[i].progress == 100
+        !currentUpload[i].selectedFile || currentUpload[i].progress >= 95
       "
       (click)="abortUpload(i)"
     >
       Abort
     </button>
-    <button>{{ currentUpload[i].progress | number : "1.2-2" }}%</button>
+    <button type="button">
+      {{ currentUpload[i].progress | number : "1.2-2" }}%
+    </button>
   </form>
 </div>
 

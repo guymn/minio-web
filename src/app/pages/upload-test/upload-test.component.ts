@@ -9,7 +9,7 @@ interface UploadSession {
   uploadId: string;
   selectedFile?: File;
   progress: number;
-  status: 'uploading' | 'completed' | 'failed' | 'aborted';
+  status: 'pending' | 'uploading' | 'completed' | 'failed' | 'aborted';
 }
 
 @Component({
@@ -42,12 +42,6 @@ export class UploadTestComponent {
 
   async onUpload(event: Event, index: number): Promise<void> {
     event.preventDefault();
-
-    // เก็บข้อมูลการ upload ปัจจุบัน
-    this.currentUpload[index] = {
-      ...this.currentUpload[index],
-      controller: new AbortController(),
-    };
 
     const file = this.currentUpload[index].selectedFile;
     if (!file) return;
@@ -185,7 +179,7 @@ export class UploadTestComponent {
       objectName: '',
       uploadId: '',
       progress: 0,
-      status: 'uploading',
+      status: 'pending',
       selectedFile: undefined,
     });
   }
