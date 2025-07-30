@@ -72,7 +72,7 @@ export class UploadTestComponent {
 
       // 2. Get presigned URL
       const presignedUrlRes = await this.minioService
-        .getPresignedUrls(objectName, uploadId, totalParts)
+        .getPresignedUrlsForUpload(objectName, uploadId, totalParts)
         .toPromise();
       const parts = await presignedUrlRes.payload;
 

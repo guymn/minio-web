@@ -1,0 +1,26 @@
+<h2>MinIO File List</h2>
+
+<table border="1" cellpadding="10" cellspacing="0" style="width: 100%">
+  <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Size (MB)</th>
+      <th>Last Modified</th>
+      <th>Version ID</th>
+      <th>Download</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let file of fileList; let i = index">
+      <td>{{ file.key }}</td>
+      <td>{{ file.size / 1024 / 1024 | number : "1.2-2" }}</td>
+      <td>{{ file.lastModified | date : "medium" }}</td>
+      <td>{{ file.versionId }}</td>
+      <td>
+        <button (click)="startDownload(i)" [disabled]="isLoadingList[i]">
+          {{ isLoadingList[i] ? "กำลังโหลด..." : "Download" }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>

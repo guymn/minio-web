@@ -1,8 +1,8 @@
 // src/app/constants/api-path.ts
 export const API_PATH = {
   MINIO: {
-    UPLOAD: 'minio/upload',
-    PRESIGNED_DOWNLOAD: 'minio/presigned-download',
+    PRESIGNED_DOWNLOAD: 'minio/presignd-url/download',
+    LIST: 'minio/list',
     INITIATE_UPLOAD_ID: 'minio/presigned-multipart/initiate',
     PRESIGNED_URLS: 'minio/presigned-multipart/presigned-urls',
     PRESIGNED_URL: 'minio/presigned-multipart/presigned-url',
