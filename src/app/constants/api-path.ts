@@ -10,4 +10,7 @@ export const API_PATH = {
     INFO_MULTIPART_UPLOAD: 'minio/presigned-multipart/info',
     LIST_ACTIVE_UPLOAD: 'minio/presigned-multipart/active',
   },
+  PUPPETEER: {
+    CONVERT: 'convert-html-to-pdf'
+  }
 };

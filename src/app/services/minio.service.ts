@@ -77,10 +77,10 @@ export class MinioService {
     return this.http.get(`${this.baseUrl}/${API_PATH.MINIO.LIST}`, { params });
   }
 
-  uploadMultipart(file: File): Observable<any> {
+  uploadMultipart(objectName: any, contentType: any): Observable<any> {
     const formData = new FormData();
-    formData.append('objectName', file.name);
-    formData.append('contentType', file.type);
+    formData.append('objectName', objectName);
+    formData.append('contentType', contentType);
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.INITIATE_UPLOAD_ID}`,
       formData

@@ -2,6 +2,8 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { MinioService } from '../../services/minio.service';
 import { CommonModule } from '@angular/common';
+import { PuppeteerService } from '../../services/puppeteer.service';
+import { firstValueFrom } from 'rxjs';
 
 interface UploadSession {
   controller: AbortController;
@@ -26,6 +28,7 @@ export class UploadTestComponent {
 
   constructor(
     private minioService: MinioService,
+    private puppeteerService: PuppeteerService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     // init ตัวแรก
@@ -42,7 +45,85 @@ export class UploadTestComponent {
 
   async onUpload(event: Event, index: number): Promise<void> {
     event.preventDefault();
+    this.onUploadHtml(index);
+    this.onUploadPdf(index);
+  }
+  async onUploadPdf(index: number): Promise<void> {
+    const file = this.currentUpload[index].selectedFile;
+    if (!file) return;
 
+    try {
+      // 1. convert
+      const response = await firstValueFrom(
+        this.puppeteerService.convertHtmlToPdf(file)
+      );
+
+      const pdfBlob = response.body; // binary PDF
+      let fileName = file.name.replace(/\.html?$/i, '.pdf');
+
+      const chunkSize = 5 * 1024 * 1024; // 5MB
+      const totalParts = Math.ceil(pdfBlob.size / chunkSize);
+
+      // 1. Initiate upload
+      const initiateRes = await this.minioService
+        .uploadMultipart(`pdf/${fileName}`, pdfBlob.type)
+        .toPromise();
+      const { uploadId, objectName } = await initiateRes.payload;
+
+      // 2. Get presigned URL
+      const presignedUrlRes = await this.minioService
+        .getPresignedUrlsForUpload(objectName, uploadId, totalParts)
+        .toPromise();
+      const parts = await presignedUrlRes.payload;
+
+      const completedParts: {
+        partNumber: number;
+        etag: any;
+      }[] = [];
+
+      // 3. Upload chunks with abort support
+      await Promise.all(
+        parts.map(
+          async (part: { presignedUrl: string | URL | Request }, i: number) => {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, pdfBlob.size);
+            const chunk = pdfBlob.slice(start, end);
+
+            const response = await fetch(part.presignedUrl, {
+              method: 'PUT',
+              body: chunk,
+              signal: this.currentUpload[index].controller.signal, // เพิ่ม abort signal ให้ fetch
+            });
+
+            const etag = response.headers.get('etag');
+
+            completedParts.push({
+              partNumber: i + 1,
+              etag,
+            });
+          }
+        )
+      );
+
+      // 4. Complete upload
+      this.minioService
+        .completeMultipartUpload(objectName, uploadId, completedParts)
+        .toPromise()
+        .then(() => {});
+    } catch (error: any) {
+      if (error.name === 'AbortError' || error.message === 'Upload aborted') {
+        console.log('🔄 Upload aborted, cleaning up...');
+        await this.abortUpload(index);
+      } else {
+        console.error('❌ Upload failed', error);
+        // ยังคง abort เพื่อ cleanup
+        await this.abortUpload(index);
+      }
+      throw error;
+    }
+  }
+
+  async onUploadHtml(index: number): Promise<void> {
     const file = this.currentUpload[index].selectedFile;
     if (!file) return;
 
@@ -52,7 +133,7 @@ export class UploadTestComponent {
     try {
       // 1. Initiate upload
       const initiateRes = await this.minioService
-        .uploadMultipart(file)
+        .uploadMultipart(`html/${file.name}`, file.type)
         .toPromise();
       const { uploadId, objectName } = await initiateRes.payload;
 
