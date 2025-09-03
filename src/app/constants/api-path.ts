@@ -5,7 +5,6 @@ export const API_PATH = {
     LIST: 'minio/list',
     INITIATE_UPLOAD_ID: 'minio/presigned-multipart/initiate',
     PRESIGNED_URLS: 'minio/presigned-multipart/presigned-urls',
-    PRESIGNED_URL: 'minio/presigned-multipart/presigned-url',
     COMPLETE_MULTIPART_UPLOAD: 'minio/presigned-multipart/complete',
     ABORT_MULTIPART_UPLOAD: 'minio/presigned-multipart/abort',
     INFO_MULTIPART_UPLOAD: 'minio/presigned-multipart/info',

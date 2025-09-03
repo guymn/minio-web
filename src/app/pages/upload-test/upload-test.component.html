@@ -28,3 +28,9 @@
 </div>
 
 <button type="button" (click)="addUploader()">Add Uploader</button>
+
+<p>{{ "// 1. Initiate upload => ได้ uploadId" }}</p>
+<p>{{ "// 2. Get presigned URL โดยอิงจาก uploadId ที่ได้จาก 1) เป็นจำนวน file size หาร 5 MB" }}</p>
+<p>{{ "// 3. แบ่ง chunk เป็นอย่างละ 5 MB แล้ว loop presigned URL เพื่ออัพโหลดแต่ละ chunk" }}</p>
+<p>{{ "// 4. Complete upload จะทำการรวม chunk ที่อัพไปก่อนหน้าให้กลายเป็นไฟล์" }}</p>
+<p>{{"ในส่วนกรณีที่เป็นชื่อซ้ำจะทำการตั้งค่า bucket นั้นเป็น versioning enable เพื่อบ่งบอกได้ว่าอันไหนเป็นอันล่าสุดที่อัพไป"}}</p>

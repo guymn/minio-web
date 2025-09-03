@@ -1,1 +1,9 @@
-<router-outlet> </router-outlet>
+<!-- app.component.html -->
+<nav class="tabs">
+  <a routerLink="/upload-test" routerLinkActive="active">Upload Test</a>
+  <a routerLink="/download-test" routerLinkActive="active">Download Test</a>
+</nav>
+
+<div class="tab-content">
+  <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,21 @@
+/* styles.css */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+.tabs a {
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #555;
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+.tabs a.active {
+  border: 1px solid #ccc;
+  border-bottom: 2px solid white;
+  background: #f9f9f9;
+  font-weight: bold;
+}
