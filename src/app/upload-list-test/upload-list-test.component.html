@@ -1,0 +1,11 @@
+<form (submit)="onUploadAll($event)">
+  <input type="file" (change)="onFilesSelected($event)" multiple />
+
+  <ul>
+    <li *ngFor="let file of selectedFiles; let i = index">
+      {{ i + 1 }}. {{ file.name }} ({{ file.size }} bytes)
+    </li>
+  </ul>
+
+  <button type="submit" [disabled]="!selectedFiles.length">Upload All</button>
+</form>

@@ -9,8 +9,11 @@ export const API_PATH = {
     ABORT_MULTIPART_UPLOAD: 'minio/presigned-multipart/abort',
     INFO_MULTIPART_UPLOAD: 'minio/presigned-multipart/info',
     LIST_ACTIVE_UPLOAD: 'minio/presigned-multipart/active',
+
+    PRESIGNED_URLS_LIST: 'pb/minio/initiate-presigned-url',
+    COMPLETE_UPLOAD_LIST: 'pb/minio/complete',
   },
   PUPPETEER: {
-    CONVERT: 'convert-html-to-pdf'
-  }
+    CONVERT: 'convert-html-to-pdf',
+  },
 };

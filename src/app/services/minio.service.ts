@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { API_PATH } from '../constants/api-path';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { API_BASE_URL } from '../../../tokens/api-base-url.token';
+import { CompleteUploadListRequest, UploadSessionDto } from '../model/model';
 interface DownloadProgress {
   loadedChunks: number;
   totalChunks: number;
@@ -13,7 +14,7 @@ interface DownloadProgress {
 })
 export class MinioService {
   private http = inject(HttpClient);
-  private baseUrl = inject(API_BASE_URL);
+  private baseUrl = 'http://localhost:8417/egp-cpi09-service';
   readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
   constructor() {}
@@ -127,6 +128,20 @@ export class MinioService {
     return this.http.delete(
       `${this.baseUrl}/${API_PATH.MINIO.ABORT_MULTIPART_UPLOAD}`,
       { params }
+    );
+  }
+
+  getPresignedUrlsForUploadList(session: UploadSessionDto): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_URLS_LIST}`,
+      session
+    );
+  }
+
+  completeUploadList(request: CompleteUploadListRequest): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/${API_PATH.MINIO.COMPLETE_UPLOAD_LIST}`,
+      request
     );
   }
 }
