@@ -1,0 +1,28 @@
+<form (submit)="onFillTemplete($event)">
+  <input type="file" (change)="onFilesSelected($event)" multiple />
+
+  <!-- แสดง input อัตโนมัติตาม extractedData -->
+  <div *ngIf="extractedData && (extractedData | keyvalue).length > 0">
+    <h3>กรอกข้อมูลที่ Extracted มา</h3>
+    <div
+      *ngFor="let field of extractedData | keyvalue; trackBy: trackByKey"
+      class="field-row"
+    >
+      <label [for]="field.key">{{ field.key }}</label>
+      <input
+        type="text"
+        [id]="field.key"
+        [(ngModel)]="extractedData[field.key]"
+        name="{{ field.key }}"
+      />
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="!selectedFile">Fill Templete</button>
+</form>
+
+<!-- Debug Preview -->
+<div *ngIf="extractedData | json as jsonData">
+  <h3>Extracted Data (JSON)</h3>
+  <pre>{{ jsonData }}</pre>
+</div>

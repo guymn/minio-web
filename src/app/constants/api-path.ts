@@ -13,6 +13,9 @@ export const API_PATH = {
     PRESIGNED_URLS_LIST: 'pb/minio/initiate-presigned-url',
     COMPLETE_UPLOAD_LIST: 'pb/minio/complete',
   },
+  CK: {
+    FILL_TEMPLETE: 'pb/ck/html/fill',
+  },
   PUPPETEER: {
     CONVERT: 'convert-html-to-pdf',
   },

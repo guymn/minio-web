@@ -88,6 +88,10 @@ export class UploadListTestComponent {
                     const chunk = file.slice(start, end);
 
                     //use presign url
+                    // const presign = part.presignedUrl.replace(
+                    //   'http://minio-hl.minio-system.svc.cluster.local:9000',
+                    //   'https://minio-https.apps.egpms.pccth.com'
+                    // );
                     const response = await fetch(part.presignedUrl, {
                       method: 'PUT',
                       body: chunk,

@@ -15,6 +15,7 @@ interface DownloadProgress {
 export class MinioService {
   private http = inject(HttpClient);
   private baseUrl = 'http://localhost:8417/egp-cpi09-service';
+  // private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cpi09-service';
   readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
   constructor() {}
