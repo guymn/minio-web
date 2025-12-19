@@ -14,8 +14,10 @@ interface DownloadProgress {
 })
 export class MinioService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8417/egp-cpi09-service';
-  // private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cpi09-service';
+  private baseUrl = 'http://localhost:8412/egp-cobj01-service';
+  // private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cobj01-service';
+  // private baseUrl = 'https://process5.apps.egpms.pccth.com/egp-cpi09-service';
+
   readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
   constructor() {}
@@ -26,6 +28,23 @@ export class MinioService {
       `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_DOWNLOAD}`,
       { params }
     );
+  }
+
+  downloadFile(presignedUrl: string, fileName: string): void {
+    this.http.get(presignedUrl, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(blobUrl);
+        console.log(`✅ Downloaded: ${fileName}`);
+      },
+      error: (err) => {
+        console.error('❌ Download failed:', err);
+      },
+    });
   }
 
   downloadFileInChunks(
@@ -74,8 +93,17 @@ export class MinioService {
     });
   }
 
-  getList(objectKey: string): Observable<any> {
-    const params = new HttpParams().set('objectKey', objectKey);
+  getList(
+    sessionId: string | null,
+    page: number,
+    size: number
+  ): Observable<any> {
+    let params = new HttpParams();
+    if (sessionId) {
+      params = params.set('sessionId', sessionId);
+    }
+    params = params.set('page', page.toString());
+    params = params.set('size', size.toString());
     return this.http.get(`${this.baseUrl}/${API_PATH.MINIO.LIST}`, { params });
   }
 

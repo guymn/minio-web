@@ -47,6 +47,7 @@ export class UploadListTestComponent {
       sessionId: null, // หรือใส่ id ถ้ามี
       fileList: this.selectedFiles.map((file) => ({
         fileName: file.name,
+        path : "",
         contentType: file.type,
         countPart: Math.ceil(file.size / chunkSize),
         sizeBytes: file.size,
