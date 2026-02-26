@@ -11,6 +11,7 @@ import {
 } from '../model/model';
 import { MinioService } from '../services/minio.service';
 import { PuppeteerService } from '../services/puppeteer.service';
+import pLimit from 'p-limit';
 
 @Component({
   selector: 'app-upload-list-test',
@@ -24,7 +25,7 @@ export class UploadListTestComponent {
 
   constructor(
     private minioService: MinioService,
-    private puppeteerService: PuppeteerService
+    private puppeteerService: PuppeteerService,
   ) {}
 
   onFilesSelected(event: Event): void {
@@ -40,14 +41,15 @@ export class UploadListTestComponent {
 
   onUploadAll(event: Event): void {
     event.preventDefault();
+    const startTime = performance.now(); // ⏱ เริ่มจับเวลา
 
-    const chunkSize = 5 * 1024 * 1024; // 5MB
+    const chunkSize = 10 * 1024 * 1024; // 5MB
 
     const body: UploadSessionDto = {
       sessionId: null, // หรือใส่ id ถ้ามี
       fileList: this.selectedFiles.map((file) => ({
         fileName: file.name,
-        path : "",
+        path: '',
         contentType: file.type,
         countPart: Math.ceil(file.size / chunkSize),
         sizeBytes: file.size,
@@ -63,59 +65,68 @@ export class UploadListTestComponent {
           sessionId: data.sessionId,
           uploadList: [],
         };
+
+        const limit = pLimit(50); // จำกัด 50 concurrent part
+        const fileLimit = pLimit(2);
+
         // รอทุกไฟล์ upload เสร็จหมด
         await Promise.all(
           data.initiateUploadList.map(
-            async (upload: InitiateUploadDto, i: number) => {
-              const file: File = this.selectedFiles[i];
-              const uploadReq: CompleteUploadRequest = {
-                fileId: upload.fileId,
-                objectName: upload.objectName,
-                uploadId: upload.uploadId,
-                parts: [],
-              };
+            async (upload: InitiateUploadDto, i: number) =>
+              fileLimit(async () => {
+                const file: File = this.selectedFiles[i];
 
-              await Promise.all(
-                upload.presignedUrlList.map(
-                  async (part: PresignedUrlDto, j: number) => {
-                    const partInfo: PartInfo = {
-                      partNumber: part.partNumber,
-                      etag: '',
-                    };
+                const uploadReq: CompleteUploadRequest = {
+                  fileId: upload.fileId,
+                  objectName: upload.objectName,
+                  uploadId: upload.uploadId,
+                  parts: [],
+                };
 
-                    //แบ่ง part
-                    const start = j * chunkSize;
-                    const end = Math.min(start + chunkSize, file.size);
-                    const chunk = file.slice(start, end);
+                await Promise.all(
+                  upload.presignedUrlList.map(
+                    (part: PresignedUrlDto, j: number) =>
+                      limit(async () => {
+                        // ✅ จำกัดจำนวน part ที่จะ upload พร้อมกัน
+                        const partInfo: PartInfo = {
+                          partNumber: part.partNumber,
+                          etag: '',
+                        };
 
-                    //use presign url
-                    // const presign = part.presignedUrl.replace(
-                    //   'http://minio-hl.minio-system.svc.cluster.local:9000',
-                    //   'https://minio-https.apps.egpms.pccth.com'
-                    // );
-                    const response = await fetch(part.presignedUrl, {
-                      method: 'PUT',
-                      body: chunk,
-                    });
+                        //แบ่ง part
+                        const start = j * chunkSize;
+                        const end = Math.min(start + chunkSize, file.size);
+                        const chunk = file.slice(start, end);
 
-                    const etag: string = response.headers.get('etag') + '';
+                        const response = await fetch(part.presignedUrl, {
+                          method: 'PUT',
+                          body: chunk,
+                        });
 
-                    uploadReq.parts.push({
-                      partNumber: j + 1,
-                      etag,
-                    });
-                  }
-                )
-              );
+                        const etag: string = response.headers.get('etag') + '';
 
-              completeReq.uploadList.push(uploadReq);
-            }
-          )
+                        uploadReq.parts.push({
+                          partNumber: j + 1,
+                          etag,
+                        });
+                      }),
+                  ),
+                );
+
+                completeReq.uploadList.push(uploadReq);
+              }),
+          ),
         );
 
         // เรียก completeUploadList หลังทุก part ของทุกไฟล์เสร็จ
         this.minioService.completeUploadList(completeReq).subscribe({
-          next: (r) => console.log('Upload completed:', r),
+          next: (r) => {
+            const endTime = performance.now(); // ⏱ จบเวลา
+            const duration = ((endTime - startTime) / 1000).toFixed(4);
+
+            console.log('Upload completed:', r);
+            console.log(`⏱ Upload ใช้เวลา ${duration} วินาที`);
+          },
           error: (err) => console.error(err),
         });
       },

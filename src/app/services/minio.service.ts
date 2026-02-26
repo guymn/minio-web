@@ -26,11 +26,13 @@ export class MinioService {
     const params = new HttpParams().set('objectName', objectName);
     return this.http.get(
       `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_DOWNLOAD}`,
-      { params }
+      { params },
     );
   }
 
   downloadFile(presignedUrl: string, fileName: string): void {
+    const startTime = performance.now(); // ⏱ เริ่มจับเวลา
+
     this.http.get(presignedUrl, { responseType: 'blob' }).subscribe({
       next: (blob) => {
         const blobUrl = URL.createObjectURL(blob);
@@ -40,6 +42,11 @@ export class MinioService {
         a.click();
         URL.revokeObjectURL(blobUrl);
         console.log(`✅ Downloaded: ${fileName}`);
+        const endTime = performance.now(); // ⏱ จบเวลา
+        const duration = ((endTime - startTime) / 1000).toFixed(4);
+
+        console.log('Download completed:', endTime - startTime);
+        console.log(`⏱ Download ใช้เวลา ${duration} วินาที`);
       },
       error: (err) => {
         console.error('❌ Download failed:', err);
@@ -50,7 +57,7 @@ export class MinioService {
   downloadFileInChunks(
     presignedUrl: string,
     totalSize: number,
-    fileName: string
+    fileName: string,
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const chunksCount = Math.ceil(totalSize / this.CHUNK_SIZE);
@@ -96,7 +103,7 @@ export class MinioService {
   getList(
     sessionId: string | null,
     page: number,
-    size: number
+    size: number,
   ): Observable<any> {
     let params = new HttpParams();
     if (sessionId) {
@@ -113,14 +120,14 @@ export class MinioService {
     formData.append('contentType', contentType);
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.INITIATE_UPLOAD_ID}`,
-      formData
+      formData,
     );
   }
 
   getPresignedUrlsForUpload(
     objectName: string,
     uploadId: string,
-    totalParts: number
+    totalParts: number,
   ): Observable<any> {
     const formData = new FormData();
     formData.append('objectName', objectName);
@@ -129,14 +136,14 @@ export class MinioService {
 
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_URLS}`,
-      formData
+      formData,
     );
   }
 
   completeMultipartUpload(
     objectName: string,
     uploadId: string,
-    parts: any[]
+    parts: any[],
   ): Observable<any> {
     const body = {
       objectName,
@@ -146,7 +153,7 @@ export class MinioService {
 
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.COMPLETE_MULTIPART_UPLOAD}`,
-      body
+      body,
     );
   }
 
@@ -156,21 +163,33 @@ export class MinioService {
       .set('objectName', objectName);
     return this.http.delete(
       `${this.baseUrl}/${API_PATH.MINIO.ABORT_MULTIPART_UPLOAD}`,
-      { params }
+      { params },
     );
   }
 
   getPresignedUrlsForUploadList(session: UploadSessionDto): Observable<any> {
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_URLS_LIST}`,
-      session
+      session,
     );
   }
 
   completeUploadList(request: CompleteUploadListRequest): Observable<any> {
     return this.http.post(
       `${this.baseUrl}/${API_PATH.MINIO.COMPLETE_UPLOAD_LIST}`,
-      request
+      request,
+    );
+  }
+
+  downloadStreamFile(fileId: string) {
+    return this.http.post(
+      `${this.baseUrl}/${API_PATH.MINIO.STEAM_DOWNLOAD}`,
+      null, // เพราะคุณใช้ @RequestParam ไม่ใช่ body
+      {
+        params: { fileId },
+        responseType: 'blob',
+        observe: 'response', // ⭐ สำคัญ
+      },
     );
   }
 }

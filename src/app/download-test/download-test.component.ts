@@ -20,6 +20,7 @@ interface file {
 export class DownloadTestComponent {
   fileList: file[] = [];
   isLoadingList: boolean[] = [];
+  cf2900d7: any;
 
   constructor(private minioService: MinioService) {
     // this.getFileList('');
@@ -56,8 +57,34 @@ export class DownloadTestComponent {
 
   download() {
     this.minioService.downloadFile(
-      '',
-      '/cpi/e-contract/SSO AD.pdf'
+      'https://minio-https.apps.egpms.pccth.com/downloads-dev/econtract/e9c33ecd-e33b-440e-97f3-d789f3273101_test-5gb.bin?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=app-econtract-dev%2F20260213%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260213T091728Z&X-Amz-Expires=36000&X-Amz-SignedHeaders=host&X-Amz-Signature=28479bb8d99a00ae4aafecda8d10348e288f3d40763044d7407b58bdd6b9d2f5',
+      'test-5gb.bin',
     );
+  }
+
+  downloadSteam() {
+    let fileId: string = 'cf2900d7-89c4-4152-9387-ba30d9899cbc';
+    this.minioService.downloadStreamFile(fileId).subscribe((res) => {
+      const blob = res.body as Blob;
+
+      const contentDisposition = res.headers.get('Content-Disposition');
+      let fileName = 'downloaded-file';
+
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="(.+)"/);
+        if (match?.length === 2) {
+          fileName = match[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName; // ตั้งชื่อเอง หรือดึงจาก header
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    });
   }
 }
