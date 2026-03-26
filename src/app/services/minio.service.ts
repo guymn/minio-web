@@ -14,8 +14,8 @@ interface DownloadProgress {
 })
 export class MinioService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8412/egp-cobj01-service';
-  // private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cobj01-service';
+  // private baseUrl = 'http://localhost:8412/egp-cobj01-service';
+  private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cobj01-service';
   // private baseUrl = 'https://process5.apps.egpms.pccth.com/egp-cpi09-service';
 
   readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk

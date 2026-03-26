@@ -63,7 +63,7 @@ export class DownloadTestComponent {
   }
 
   downloadSteam() {
-    let fileId: string = 'cf2900d7-89c4-4152-9387-ba30d9899cbc';
+    let fileId: string = 'f33ebe34-adcf-4b40-87f7-7cab430b9a97';
     this.minioService.downloadStreamFile(fileId).subscribe((res) => {
       const blob = res.body as Blob;
 

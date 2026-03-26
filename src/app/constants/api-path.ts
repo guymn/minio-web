@@ -9,8 +9,8 @@ export const API_PATH = {
     INFO_MULTIPART_UPLOAD: 'minio/presigned-multipart/info',
     LIST_ACTIVE_UPLOAD: 'minio/presigned-multipart/active',
 
-    PRESIGNED_URLS_LIST: 'pb/minio/initiate-presigned-url-s3',
-    COMPLETE_UPLOAD_LIST: 'pb/minio/complete-s3',
+    PRESIGNED_URLS_LIST: 'pb/minio/initiate-presigned-url',
+    COMPLETE_UPLOAD_LIST: 'pb/minio/complete',
     COMPLETE_UPLOAD_LIST_ASYN: 'pb/minio/complete-async',
     LIST: 'pb/minio/get-list',
     STEAM_DOWNLOAD: 'pb/minio/presignd-url/download-steam-file-by-id',
