@@ -1,7 +1,6 @@
 // src/app/constants/api-path.ts
 export const API_PATH = {
   MINIO: {
-    PRESIGNED_DOWNLOAD: 'minio/presignd-url/download',
     INITIATE_UPLOAD_ID: 'minio/presigned-multipart/initiate',
     PRESIGNED_URLS: 'minio/presigned-multipart/presigned-urls',
     COMPLETE_MULTIPART_UPLOAD: 'minio/presigned-multipart/complete',
@@ -14,6 +13,7 @@ export const API_PATH = {
     COMPLETE_UPLOAD_LIST_ASYN: 'pb/minio/complete-async',
     LIST: 'pb/minio/get-list',
     STEAM_DOWNLOAD: 'pb/minio/presignd-url/download-steam-file-by-id',
+    DOWNLOAD_BY_ID: 'pb/minio/presignd-url/download-by-id',
   },
   CK: {
     FILL_TEMPLETE: 'pb/ck/html/fill',

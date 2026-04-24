@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { API_PATH } from '../constants/api-path';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { API_BASE_URL } from '../../../tokens/api-base-url.token';
@@ -14,44 +14,54 @@ interface DownloadProgress {
 })
 export class MinioService {
   private http = inject(HttpClient);
-  // private baseUrl = 'http://localhost:8412/egp-cobj01-service';
-  private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cobj01-service';
+  private baseUrl = 'http://localhost:8412/egp-cobj01-service';
+  // private baseUrl = 'http://sdtest.apps.egpms.pccth.com/egp-cobj01-service';
   // private baseUrl = 'https://process5.apps.egpms.pccth.com/egp-cpi09-service';
 
   readonly CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
   constructor() {}
 
-  getPresignedUrlsForDownload(objectName: string): Observable<any> {
-    const params = new HttpParams().set('objectName', objectName);
-    return this.http.get(
-      `${this.baseUrl}/${API_PATH.MINIO.PRESIGNED_DOWNLOAD}`,
-      { params },
+  getPresignedUrlsForDownload(fileId: string): Observable<any> {
+    const params = new HttpParams()
+      .set('fileId', fileId)
+      .set('expiry', '60');
+    return this.http.post(
+      `${this.baseUrl}/${API_PATH.MINIO.DOWNLOAD_BY_ID}`,
+      null,       // no request body
+      { params }, // fileId & expiry go as query params
     );
   }
 
-  downloadFile(presignedUrl: string, fileName: string): void {
+  downloadFile(fileId: string): void {
     const startTime = performance.now(); // ⏱ เริ่มจับเวลา
 
-    this.http.get(presignedUrl, { responseType: 'blob' }).subscribe({
-      next: (blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(blobUrl);
-        console.log(`✅ Downloaded: ${fileName}`);
-        const endTime = performance.now(); // ⏱ จบเวลา
-        const duration = ((endTime - startTime) / 1000).toFixed(4);
+    this.getPresignedUrlsForDownload(fileId)
+      .pipe(
+        switchMap((res) => {
+          const url: string = res.payload;
+          return this.http.get(url, { responseType: 'blob' });
+        }),
+      )
+      .subscribe({
+        next: (blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = 'test.pdf';
+          a.click();
+          URL.revokeObjectURL(blobUrl);
+          console.log(`✅ Downloaded: ${'test.pdf'}`);
+          const endTime = performance.now(); // ⏱ จบเวลา
+          const duration = ((endTime - startTime) / 1000).toFixed(4);
 
-        console.log('Download completed:', endTime - startTime);
-        console.log(`⏱ Download ใช้เวลา ${duration} วินาที`);
-      },
-      error: (err) => {
-        console.error('❌ Download failed:', err);
-      },
-    });
+          console.log('Download completed:', endTime - startTime);
+          console.log(`⏱ Download ใช้เวลา ${duration} วินาที`);
+        },
+        error: (err) => {
+          console.error('❌ Download failed:', err);
+        },
+      });
   }
 
   downloadFileInChunks(

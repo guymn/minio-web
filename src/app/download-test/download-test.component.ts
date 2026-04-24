@@ -56,10 +56,8 @@ export class DownloadTestComponent {
   // }
 
   download() {
-    this.minioService.downloadFile(
-      'https://minio-https.apps.egpms.pccth.com/downloads-dev/econtract/e9c33ecd-e33b-440e-97f3-d789f3273101_test-5gb.bin?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=app-econtract-dev%2F20260213%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260213T091728Z&X-Amz-Expires=36000&X-Amz-SignedHeaders=host&X-Amz-Signature=28479bb8d99a00ae4aafecda8d10348e288f3d40763044d7407b58bdd6b9d2f5',
-      'test-5gb.bin',
-    );
+    const fileId: string = '0fc693af-54df-47da-ac73-79ecabbf21cc';
+    this.minioService.downloadFile(fileId);
   }
 
   downloadSteam() {
